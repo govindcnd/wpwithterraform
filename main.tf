@@ -86,3 +86,81 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_vpc" "default" {
+    cidr_block = "10.0.0.0/16"
+    enable_dns_hostnames = true
+    
+}
+
+resource "aws_internet_gateway" "default" {
+    vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "us-east-1c-public" {
+    vpc_id = "${aws_vpc.default.id}"
+
+    cidr_block = "${var.public_subnet_cidr}"
+    availability_zone = "us-east-1c"
+}
+
+resource "aws_subnet" "us-east-1b-public" {
+    vpc_id = "${aws_vpc.default.id}"
+
+    cidr_block = "${var.public_subnet_cidr}"
+    availability_zone = "us-east-1b"
+}
+
+resource "aws_subnet" "us-east-1d-public" {
+    vpc_id = "${aws_vpc.default.id}"
+
+    cidr_block = "${var.public_subnet_cidr}"
+    availability_zone = "us-east-1d"
+}
+
+resource "aws_route_table" "us-east-1-public" {
+    vpc_id = "${aws_vpc.default.id}"
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = "${aws_internet_gateway.default.id}"
+    }
+}
+
+resource "aws_route_table_association" "us-east-1c-public" {
+    subnet_id = "${aws_subnet.us-east-1c-public.id}"
+    route_table_id = "${aws_route_table.us-east-1-public.id}"
+}
+
+resource "aws_route_table_association" "us-east-1b-public" {
+    subnet_id = "${aws_subnet.us-east-1b-public.id}"
+    route_table_id = "${aws_route_table.us-east-1-public.id}"
+}
+
+
+resource "aws_route_table_association" "us-east-1d-public" {
+    subnet_id = "${aws_subnet.us-east-1d-public.id}"
+    route_table_id = "${aws_route_table.us-east-1-public.id}"
+}
+
+
+
+resource "aws_db_instance" "default" {
+  depends_on             = ["aws_security_group.rds_sg"]
+  identifier             = "stealthmodedb-rds"
+  allocated_storage      = "10"
+  engine                 = "mysql"
+  engine_version         = "5.6.22"
+  instance_class         = "db.t2.micro"
+  name                   = "stealthmodedb"
+  username               = "root"
+  password               = "password"
+  vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
+  db_subnet_group_name   = "${aws_db_subnet_group.default.id}"
+}
+resource "aws_db_subnet_group" "default" {
+  name        = "main_subnet_group"
+  description = "Our main group of subnets"
+  subnet_ids  = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]
+}
+
