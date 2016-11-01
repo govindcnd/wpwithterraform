@@ -10,7 +10,7 @@ resource "aws_elb" "web-elb" {
 
   # The same availability zone as our instances
   availability_zones = ["${split(",", var.availability_zones)}"]
-  security_groups = ["${aws_security_group.default.id}"]
+  security_groups = ["${aws_security_group.elb-sg.id}"]
 
   listener {
     instance_port     = 80
@@ -76,6 +76,30 @@ resource "aws_security_group" "default" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
+    security_groups = ["${aws_security_group.elb-sg.id}"]
+  }
+
+  # outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+   vpc_id = "${aws_vpc.default.id}"
+
+}
+
+resource "aws_security_group" "elb-sg" {
+  name        = "stealthmode_elb_sg"
+  description = "Used by elb"
+
+
+  # HTTP access from anywhere
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -89,6 +113,7 @@ resource "aws_security_group" "default" {
    vpc_id = "${aws_vpc.default.id}"
 
 }
+
 
 resource "aws_vpc" "default" {
     cidr_block = "10.0.0.0/16"
