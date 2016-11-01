@@ -10,6 +10,7 @@ resource "aws_elb" "web-elb" {
 
   # The same availability zone as our instances
   availability_zones = ["${split(",", var.availability_zones)}"]
+  security_groups = ["${aws_security_group.default.id}"]
 
   listener {
     instance_port     = 80
@@ -37,7 +38,7 @@ resource "aws_autoscaling_group" "web-asg" {
   launch_configuration = "${aws_launch_configuration.web-lc.name}"
   load_balancers       = ["${aws_elb.web-elb.name}"]
 
-  #vpc_zone_identifier = ["${split(",", var.availability_zones)}"]
+  vpc_zone_identifier = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]
   tag {
     key                 = "Name"
     value               = "web-asg"
@@ -85,6 +86,8 @@ resource "aws_security_group" "default" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+   vpc_id = "${aws_vpc.default.id}"
+
 }
 
 resource "aws_vpc" "default" {
@@ -100,21 +103,21 @@ resource "aws_internet_gateway" "default" {
 resource "aws_subnet" "us-east-1c-public" {
     vpc_id = "${aws_vpc.default.id}"
 
-    cidr_block = "${var.public_subnet_cidr}"
+    cidr_block = "${var.public1_subnet_cidr}"
     availability_zone = "us-east-1c"
 }
 
 resource "aws_subnet" "us-east-1b-public" {
     vpc_id = "${aws_vpc.default.id}"
 
-    cidr_block = "${var.public_subnet_cidr}"
+    cidr_block = "${var.public2_subnet_cidr}"
     availability_zone = "us-east-1b"
 }
 
 resource "aws_subnet" "us-east-1d-public" {
     vpc_id = "${aws_vpc.default.id}"
 
-    cidr_block = "${var.public_subnet_cidr}"
+    cidr_block = "${var.public3_subnet_cidr}"
     availability_zone = "us-east-1d"
 }
 

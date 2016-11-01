@@ -12,7 +12,7 @@ variable "aws_amis" {
 }
 
 variable "availability_zones" {
-  default     = "us-east-1b,us-east-1c,us-east-1d,us-east-1e"
+  default     = "us-east-1b,us-east-1c"
   description = "List of availability zones "
 }
 
@@ -53,12 +53,23 @@ variable "vpc_cidr" {
     default = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidr" {
+variable "public1_subnet_cidr" {
     description = "CIDR for the Public Subnet"
-    default = "10.0.0.0/24"
+    default = "10.0.4.0/24"
+}
+
+variable "public2_subnet_cidr" {
+    description = "CIDR for the Public Subnet"
+    default = "10.0.5.0/24"
+}
+
+variable "public3_subnet_cidr" {
+    description = "CIDR for the Public Subnet"
+    default = "10.0.6.0/24"
 }
 
 variable "private_subnet_cidr" {
     description = "CIDR for the Private Subnet"
     default = "10.0.1.0/24"
 }
+
