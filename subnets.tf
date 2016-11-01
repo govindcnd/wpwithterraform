@@ -1,5 +1,5 @@
 resource "aws_subnet" "subnet_1" {
-  vpc_id            = "${aws_vpc.default.id}"
+  vpc_id            = "${aws_vpc.smvpc.id}"
   cidr_block        = "${var.subnet_1_cidr}"
   availability_zone = "${var.az_1}"
 
@@ -9,7 +9,7 @@ resource "aws_subnet" "subnet_1" {
 }
 
 resource "aws_subnet" "subnet_2" {
-  vpc_id            = "${aws_vpc.default.id}"
+  vpc_id            = "${aws_vpc.smvpc.id}"
   cidr_block        = "${var.subnet_2_cidr}"
   availability_zone = "${var.az_2}"
 

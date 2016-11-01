@@ -9,7 +9,8 @@ resource "aws_elb" "web-elb" {
   name = "stealthmode-elb"
 
   # The same availability zone as our instances
-  availability_zones = ["${split(",", var.availability_zones)}"]
+  #availability_zones = ["${split(",", var.availability_zones)}"]
+  subnets = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]
   security_groups = ["${aws_security_group.elb-sg.id}"]
 
   listener {
@@ -78,6 +79,13 @@ resource "aws_security_group" "default" {
     protocol    = "tcp"
     security_groups = ["${aws_security_group.elb-sg.id}"]
   }
+ # HTTP access from anywhere
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   # outbound internet access
   egress {
@@ -86,7 +94,7 @@ resource "aws_security_group" "default" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-   vpc_id = "${aws_vpc.default.id}"
+   vpc_id = "${aws_vpc.smvpc.id}"
 
 }
 
@@ -110,44 +118,44 @@ resource "aws_security_group" "elb-sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-   vpc_id = "${aws_vpc.default.id}"
+   vpc_id = "${aws_vpc.smvpc.id}"
 
 }
 
 
-resource "aws_vpc" "default" {
+resource "aws_vpc" "smvpc" {
     cidr_block = "10.0.0.0/16"
     enable_dns_hostnames = true
     
 }
 
 resource "aws_internet_gateway" "default" {
-    vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.smvpc.id}"
 }
 
 resource "aws_subnet" "us-east-1c-public" {
-    vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.smvpc.id}"
 
     cidr_block = "${var.public1_subnet_cidr}"
     availability_zone = "us-east-1c"
 }
 
 resource "aws_subnet" "us-east-1b-public" {
-    vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.smvpc.id}"
 
     cidr_block = "${var.public2_subnet_cidr}"
     availability_zone = "us-east-1b"
 }
 
 resource "aws_subnet" "us-east-1d-public" {
-    vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.smvpc.id}"
 
     cidr_block = "${var.public3_subnet_cidr}"
     availability_zone = "us-east-1d"
 }
 
 resource "aws_route_table" "us-east-1-public" {
-    vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.smvpc.id}"
 
     route {
         cidr_block = "0.0.0.0/0"

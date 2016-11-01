@@ -1,7 +1,7 @@
 resource "aws_security_group" "rds_sg" {
   name        = "main_rds_sg"
   description = "Allow all inbound traffic"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = "${aws_vpc.smvpc.id}"
 
   ingress {
     from_port   = 0
