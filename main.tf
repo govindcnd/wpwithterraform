@@ -36,7 +36,7 @@ resource "aws_autoscaling_group" "web-asg" {
   name                 = "${var.env-name}-govindraj-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
-  desired_capacity     = "${var.asg_desired}"
+  desired_capacity     = "${var.asg_min}"
   force_delete         = true
   launch_configuration = "${aws_launch_configuration.web-lc.name}"
   load_balancers       = ["${aws_elb.web-elb.name}"]
