@@ -29,23 +29,21 @@ variable "aws_secret_key" {
 }
 
 variable "instance_type" {
-  default     = "t2.micro"
-  description = "AWS instance type"
+  description = "AWS instance type "
 }
 
 variable "asg_min" {
   description = "Min numbers of servers in ASG"
-  default     = "1"
 }
 
 variable "asg_max" {
   description = "Max numbers of servers in ASG"
-  default     = "1"
+  default     = "5"
 }
 
 variable "asg_desired" {
   description = "Desired numbers of servers in ASG"
-  default     = "1"
+  default     = "4"
 }
 
 variable "vpc_cidr" {
