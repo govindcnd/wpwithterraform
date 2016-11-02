@@ -32,13 +32,14 @@ resource "aws_elb" "web-elb" {
 }
 
 resource "aws_autoscaling_group" "web-asg" {
+  lifecycle { create_before_destroy = true }
   availability_zones   = ["${split(",", var.availability_zones)}"]
   name                 = "${var.env-name}-govindraj-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
   desired_capacity     = "${var.asg_min}"
   force_delete         = true
-  launch_configuration = "${aws_launch_configuration.web-lc.name}"
+  launch_configuration = "${aws_launch_configuration.web-lc.id}"
   load_balancers       = ["${aws_elb.web-elb.name}"]
 
   vpc_zone_identifier = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]
@@ -108,7 +109,8 @@ EOF
 }
 
 resource "aws_launch_configuration" "web-lc" {
-  name          = "${var.env-name}-govindraj-lc"
+  lifecycle { create_before_destroy = true }
+#  name          = "${var.env-name}-govindraj-lc"
   image_id      = "${lookup(var.aws_amis, var.aws_region)}"
   instance_type = "${var.instance_type}"
 
@@ -117,6 +119,9 @@ resource "aws_launch_configuration" "web-lc" {
   user_data       = "${file("userdata/userdata.sh")}"
   key_name        = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.web_instance_profile.id}"
+  lifecycle {
+      create_before_destroy = true
+    }
 }
 
 # Our default security group to access
