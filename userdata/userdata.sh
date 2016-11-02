@@ -4,4 +4,4 @@ apt-get install -y ansible > /tmp/userdata.log
 apt-get install -y git
 cd /tmp
 git clone https://github.com/govindcnd/wpwithterraform.git
-/usr/local/bin/ansible-playbook /tmp/wpwithterraform/ansible/deploy.yml  -i /tmp/wpwithterraform/ansible/hosts --connection=local
+ansible-playbook /tmp/wpwithterraform/ansible/deploy.yml  -i /tmp/wpwithterraform/ansible/hosts --connection=local
