@@ -7,6 +7,9 @@
         - docker.io
         - python-pip
 
+  - name: get aws cli
+    shell: pip install awscli
+
   - name: pull wp docker image
     shell: docker pull wordpress
 
