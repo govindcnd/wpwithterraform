@@ -1,4 +1,7 @@
 #!/bin/bash -v
 apt-get update -y
-apt-get install -y nginx > /tmp/nginx.log
-##echo ${aws_db_instance.default.address}  &> /tmp/dbname.txt
+apt-get install -y ansible > /tmp/userdata.log
+apt-get install -y git
+cd /tmp
+git clone https://github.com/govindcnd/wpwithterraform.git
+/usr/local/bin/ansible-playbook /tmp/wpwithterraform/ansible/deploy.yml  -i /tmp/wpwithterraform/ansible/hosts --connection=local

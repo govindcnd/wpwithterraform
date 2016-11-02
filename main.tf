@@ -47,6 +47,64 @@ resource "aws_autoscaling_group" "web-asg" {
   }
 }
 
+resource "aws_iam_instance_profile" "web_instance_profile" {
+    name = "web_instance_profile"
+    roles = ["web_iam_role"]
+}
+
+resource "aws_iam_role" "web_iam_role" {
+    name = "web_iam_role"
+    path = "/"
+    assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "web_iam_role_policy" {	
+   name = "web_iam_role_policy"	
+   role = "${aws_iam_role.web_iam_role.id}"
+   policy = <<EOF
+{
+"Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "rds:Describe*",
+        "rds:ListTagsForResource",
+        "ec2:DescribeAccountAttributes",
+        "ec2:DescribeAvailabilityZones",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVpcs"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    },
+    {
+      "Action": [
+        "cloudwatch:GetMetricStatistics",
+        "logs:DescribeLogStreams", 
+        "logs:GetLogEvents"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_launch_configuration" "web-lc" {
   name          = "stealthmode-lc"
   image_id      = "${lookup(var.aws_amis, var.aws_region)}"
@@ -56,6 +114,7 @@ resource "aws_launch_configuration" "web-lc" {
   security_groups = ["${aws_security_group.default.id}"]
   user_data       = "${file("userdata/userdata.sh")}"
   key_name        = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.web_instance_profile.id}"
 }
 
 # Our default security group to access
@@ -166,7 +225,7 @@ resource "aws_db_instance" "default" {
   vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
   db_subnet_group_name   = "${aws_db_subnet_group.default.id}"
 }
-resource "aws_db_subnet_group" "default" {
+ resource "aws_db_subnet_group" "default" {
   name        = "main_subnet_group"
   description = "Our main group of subnets"
   subnet_ids  = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]

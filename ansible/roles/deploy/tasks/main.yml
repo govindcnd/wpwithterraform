@@ -1,0 +1,30 @@
+---
+
+  - name: check if any security updates are availble
+    shell: apt-get install nginx  -y 
+
+  - name: install docker
+    shell: apt-get install docker.io -y
+
+  - name: pull wp docker image
+    shell: docker pull wordpress
+ 
+  - name: install pip
+    shell: apt-get install python-pip
+
+  - name: install awscli
+    shell: pip install aws-cli
+
+  - name: Populate proxypass file in nginx
+    template: src=nginxdefault.j2 dest=/etc/nginx/sites-available/default
+    register: fileupdated
+
+  - name: Populate wp execution file
+    template: src=execution.j2 dest=/tmp/execut.sh 
+  
+  - name: restart nginx
+    service: name=nginx state=restarted
+    when: fileupdated.changed
+
+  - name: execute shell to set up wp
+    shell: bash -x /tmp/execut.sh
