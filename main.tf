@@ -1,4 +1,6 @@
 # Specify the provider and access details
+
+# For Ec2 + scaling Group + LC +ELB + IAM profile 
 provider "aws" {
   region = "${var.aws_region}"
   access_key = "${var.aws_access_key}"
@@ -6,7 +8,7 @@ provider "aws" {
 }
 
 resource "aws_elb" "web-elb" {
-  name = "stealthmode-elb"
+  name = "${var.env-name}-happymode-elb"
 
   # The same availability zone as our instances
   #availability_zones = ["${split(",", var.availability_zones)}"]
@@ -31,7 +33,7 @@ resource "aws_elb" "web-elb" {
 
 resource "aws_autoscaling_group" "web-asg" {
   availability_zones   = ["${split(",", var.availability_zones)}"]
-  name                 = "stealthmode-asg"
+  name                 = "${var.env-name}-happymode-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
   desired_capacity     = "${var.asg_desired}"
@@ -72,8 +74,8 @@ resource "aws_iam_role" "web_iam_role" {
 EOF
 }
 
-resource "aws_iam_role_policy" "web_iam_role_policy" {	
-   name = "web_iam_role_policy"	
+resource "aws_iam_role_policy" "web_iam_role_policy" {
+   name = "web_iam_role_policy"
    role = "${aws_iam_role.web_iam_role.id}"
    policy = <<EOF
 {
@@ -94,7 +96,7 @@ resource "aws_iam_role_policy" "web_iam_role_policy" {
     {
       "Action": [
         "cloudwatch:GetMetricStatistics",
-        "logs:DescribeLogStreams", 
+        "logs:DescribeLogStreams",
         "logs:GetLogEvents"
       ],
       "Effect": "Allow",
@@ -106,7 +108,7 @@ EOF
 }
 
 resource "aws_launch_configuration" "web-lc" {
-  name          = "stealthmode-lc"
+  name          = "${var.env-name}-happymode-lc"
   image_id      = "${lookup(var.aws_amis, var.aws_region)}"
   instance_type = "${var.instance_type}"
 
@@ -120,7 +122,7 @@ resource "aws_launch_configuration" "web-lc" {
 # Our default security group to access
 # the instances over SSH and HTTP
 resource "aws_security_group" "default" {
-  name        = "stealthmode_sg"
+  name        = "${var.env-name}-happymode_sg"
   description = "Used by app"
 
   # SSH access from anywhere
@@ -158,7 +160,7 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_security_group" "elb-sg" {
-  name        = "stealthmode_elb_sg"
+  name        = "${var.env-name}-happymode_elb_sg"
   description = "Used by elb"
 
 
@@ -181,11 +183,12 @@ resource "aws_security_group" "elb-sg" {
 
 }
 
+# for resource VPC
 
 resource "aws_vpc" "smvpc" {
     cidr_block = "10.0.0.0/16"
     enable_dns_hostnames = true
-    
+
 }
 
 resource "aws_internet_gateway" "default" {
@@ -212,14 +215,15 @@ resource "aws_route_table_association" "us-east-1b-public" {
 }
 
 
+# for resource DATABASE
 resource "aws_db_instance" "default" {
   depends_on             = ["aws_security_group.rds_sg"]
-  identifier             = "stealthmodedb-rds"
+  identifier             = "${var.env-name}happymodedb-rds"
   allocated_storage      = "10"
   engine                 = "mysql"
   engine_version         = "5.6.22"
   instance_class         = "db.t2.micro"
-  name                   = "stealthmodedb"
+  name                   = "${var.env-name}happymodedb"
   username               = "root"
   password               = "password"
   vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
