@@ -1,3 +1,5 @@
 #!/bin/bash
-RDSENDPOINT=$(/usr/local/bin/aws rds describe-db-instances --region us-east-1 | grep "govindrajdb-rds." | grep 'amazonaws' | awk '{print $2}' | sed 's/"//g')
+getid=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+fetchenv=$(/usr/local/bin/aws ec2 describe-instances --region us-east-1 --instance-id "$getid"  | grep "govindraj" | grep "Value" | awk '{print $2}' | awk -F"-" '{print$1}' | sed 's/"//g')
+RDSENDPOINT=$(/usr/local/bin/aws rds describe-db-instances --region us-east-1 | grep ""$fe"govindrajdb-rds." | grep 'amazonaws' | awk '{print $2}' | sed 's/"//g')
 docker run -p 8000:80 -e WORDPRESS_DB_HOST=$RDSENDPOINT:3306 -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=password -d wordpress

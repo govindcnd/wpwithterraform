@@ -45,7 +45,7 @@ resource "aws_autoscaling_group" "web-asg" {
   vpc_zone_identifier = ["${aws_subnet.subnet_1.id}", "${aws_subnet.subnet_2.id}"]
   tag {
     key                 = "Name"
-    value               = "web-asg"
+    value               = "web-asg-${var.env-name}"
     propagate_at_launch = "true"
   }
 }
@@ -89,7 +89,7 @@ resource "aws_iam_role_policy" "web_iam_role_policy" {
         "ec2:DescribeAccountAttributes",
         "ec2:DescribeAvailabilityZones",
         "ec2:DescribeSecurityGroups",
-        "ec2:DescribeVpcs"
+        "ec2:Describe*"
       ],
       "Effect": "Allow",
       "Resource": "*"
