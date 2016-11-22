@@ -13,7 +13,7 @@ resource "aws_subnet" "subnet_2" {
   vpc_id            = "${aws_vpc.smvpc.id}"
   cidr_block        = "${var.subnet_2_cidr}"
   availability_zone = "${var.az_2}"
-
+  map_public_ip_on_launch = "true"
   tags {
     Name = "main_subnet2"
   }

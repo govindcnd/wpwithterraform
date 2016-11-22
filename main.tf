@@ -42,7 +42,7 @@ resource "aws_autoscaling_group" "web-asg" {
   launch_configuration = "${aws_launch_configuration.web-lc.id}"
   load_balancers       = ["${aws_elb.web-elb.name}"]
 
-  vpc_zone_identifier = ["${aws_subnet.subnet_1.id}"]
+  vpc_zone_identifier = ["${aws_subnet.subnet_1.id}",  "${aws_subnet.subnet_2.id}"] 
   tag {
     key                 = "Name"
     value               = "web-asg-${var.env-name}"
